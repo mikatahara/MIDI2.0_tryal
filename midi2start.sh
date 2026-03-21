@@ -1,3 +1,6 @@
+REM This shell script builds a MIDI 2.0 Gadget device on a Raspberry Pi 2W.
+REM Please run it with superuser privileges.
+
 modprobe libcomposite
 cd /sys/kernel/config
 mkdir usb_gadget/g1
