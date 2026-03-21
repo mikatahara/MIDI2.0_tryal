@@ -3,7 +3,7 @@
     This software is released under the MIT License, see LICENSE.txt.
     ver0.01 12/30/2024
 
-    Send UMP MT4 (Note-On) messages 100 times at 250 ms intervals.
+    Send UMP MT4 Note ON messages 100 times at 250 ms intervals.
 */
 #include <stdio.h>
 #include <stdlib.h>
