@@ -1,9 +1,9 @@
 /*
-    midi2ctrl.c --- Copyright (c) 2024 Mikata Hara
+    midi2polypress.c --- Copyright (c) 2024 Mikata Hara
     This software is released under the MIT License, see LICENSE.txt.
     ver0.01 3/23/2026
 
-    Send UMP MT4 Control Change messages 100 times at 250 ms intervals.
+    Send UMP MT4 Polyphonic Key Pressure messages 100 times at 250 ms intervals.
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,13 +74,13 @@ int main(int argc, char *argv[])
     m->hdr.type = SND_UMP_MSG_TYPE_MIDI2_CHANNEL_VOICE;
     m->hdr.group = 0;
     m->hdr.channel = 0;
-    m->hdr.status = SND_UMP_MSG_CONTROL_CHANGE;
-    m->control_change.data = 0x12345678;
+    m->hdr.status = SND_UMP_MSG_POLY_PRESSURE;
+    m->poly_pressure.data = 0x12345678;
 
     for (int j = 0; j < 100; j++)
     {
-        m->control_change.index = 0x10 + j,
-        m->control_change.data += 0xFFFF;
+        m->poly_pressure.note = 0x10 + j,
+        m->poly_pressure.data += 0xFFFF;
         snd_seq_ump_event_output(seq_handle, &event);
         snd_seq_drain_output(seq_handle);
         usleep(250000);

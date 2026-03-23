@@ -1,9 +1,10 @@
 /*
-    midi2ctrl.c --- Copyright (c) 2024 Mikata Hara
+    midi2prgchg.c --- Copyright (c) 2024 Mikata Hara
     This software is released under the MIT License, see LICENSE.txt.
     ver0.01 3/23/2026
 
-    Send UMP MT4 Control Change messages 100 times at 250 ms intervals.
+    Send UMP MT4 Program Change message.
+    Enter three numbers, LSB/MSB.PC. Each number must be between 0 and 127.
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +24,9 @@ static int port = 0;
 
 int main(int argc, char *argv[])
 {
+    uint8_t lsb, msb, pc;
+    char str[256];
+
     /* open sequencer */
     int err = snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_DUPLEX, 0);
     if (err < 0)
@@ -74,16 +78,27 @@ int main(int argc, char *argv[])
     m->hdr.type = SND_UMP_MSG_TYPE_MIDI2_CHANNEL_VOICE;
     m->hdr.group = 0;
     m->hdr.channel = 0;
-    m->hdr.status = SND_UMP_MSG_CONTROL_CHANGE;
-    m->control_change.data = 0x12345678;
 
-    for (int j = 0; j < 100; j++)
+    m->hdr.status = SND_UMP_MSG_PROGRAM_CHANGE;
+
+    while (1)
     {
-        m->control_change.index = 0x10 + j,
-        m->control_change.data += 0xFFFF;
-        snd_seq_ump_event_output(seq_handle, &event);
-        snd_seq_drain_output(seq_handle);
-        usleep(250000);
+        uint8_t n=0;
+        printf("Program Change LSB/MSB/PC = ");
+        n = scanf("%hhd %hhd %hhd", &lsb, &msb, &pc);
+        if (n == 3)
+        {
+            m->program_change.program = pc & 0x7F;
+            m->program_change.bank_valid = 1;
+            m->program_change.bank_msb = msb & 0x7F;
+            m->program_change.bank_lsb = lsb & 0x7F;
+            snd_seq_ump_event_output(seq_handle, &event);
+            snd_seq_drain_output(seq_handle);
+        }
+        else
+        {
+            break;
+        }
     }
 
     // Close sequencer
