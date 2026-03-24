@@ -1,11 +1,9 @@
 /*
-    midi2newctrl.c --- Copyright (c) 2024 Mikata Hara
+    midi2pbend.c --- Copyright (c) 2024 Mikata Hara
     This software is released under the MIT License, see LICENSE.txt.
     ver0.01 3/23/2026
 
-    Send UMP MT4 registered/assignable controller messages 100 times at 250 ms intervals.
-    Registered Controller : 0x4020xxxx xxxxxxxx
-    Assignable Controller : 0x4030xxxx xxxxxxxx
+    Send UMP MT4 Pitchbend messages 100 times at 250 ms intervals.
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,16 +74,12 @@ int main(int argc, char *argv[])
     m->hdr.type = SND_UMP_MSG_TYPE_MIDI2_CHANNEL_VOICE;
     m->hdr.group = 0;
     m->hdr.channel = 0;
-//  m->hdr.status = SND_UMP_MSG_RPN;    //Registered Controller
-    m->hdr.status = SND_UMP_MSG_NRPN;   //Assignable Controller
-    m->rpn.bank = 0x3F;
-    m->rpn.index = 0x2E;
-    m->rpn.data = 0x12345678;
+    m->hdr.status = SND_UMP_MSG_PITCHBEND;
+    m->channel_pressure.data = 0x80000000 - 5000000;
 
-    for (int j = 0; j<100; j++)
+    for (int j = 0; j < 100; j++)
     {
-        m->rpn.index = 0x10 + j,
-        m->rpn.data += 0xFFFF;
+        m->channel_pressure.data += 100000;
         snd_seq_ump_event_output(seq_handle, &event);
         snd_seq_drain_output(seq_handle);
         usleep(250000);
